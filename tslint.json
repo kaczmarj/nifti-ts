@@ -1,0 +1,16 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "jsRules": {},
+    "rules": {
+        "check-space": true,
+        "check-lowercase": true,
+        "quotemark": [
+            true,
+            "single"
+        ],
+    },
+    "rulesDirectory": []
+}
