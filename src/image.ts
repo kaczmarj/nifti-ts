@@ -56,11 +56,15 @@ export class Image implements ImageInterface {
     // TODO(kaczmarj): voxOffset should be set dynamically here probably.
     // We should most likely get the offset given the header and extensions.
     const buffer = new ArrayBuffer(
-      this.header.voxOffset + this.data.buffer.byteLength,
+      this.header.voxOffset +
+        (this.data.buffer.byteLength - this.data.byteOffset),
     );
     const tmp = new Uint8Array(buffer.byteLength);
     tmp.set(new Uint8Array(this.header.toBuffer()), 0);
-    tmp.set(new Uint8Array(this.data.buffer), this.header.voxOffset);
+    tmp.set(
+      new Uint8Array(this.data.buffer).slice(this.data.byteOffset),
+      this.header.voxOffset,
+    );
     return tmp.buffer as ArrayBuffer;
   }
 }
