@@ -1,18 +1,15 @@
 {
   "compilerOptions": {
-    "module": "es6",
-    "target": "es5",
-    "allowJs": true,
+    "target": "es6",
+    "module": "esnext",
     "strict": true,
     "noImplicitAny": true,
+    "downlevelIteration": true,
     "removeComments": false,
     "preserveConstEnums": false,
-    "sourceMap": true
+    "sourceMap": true,
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }
