@@ -427,6 +427,24 @@ export class Header implements HeaderInterface {
       );
     }
 
+    // Validate qformCode
+    const validQformCodes = [0, 1];
+    if (!validQformCodes.includes(this.qformCode)) {
+      console.warn(
+        'Value of qformCode must be 0 or 1 but got ' + this.qformCode + '.',
+      );
+    }
+
+    // Validate sformCode
+    const validSformCodes = [0, 2, 3, 4];
+    if (!validSformCodes.includes(this.sformCode)) {
+      console.warn(
+        'Value of sformCode must be 0, 2, 3, or 4 but got ' +
+          this.qformCode +
+          '.',
+      );
+    }
+
     // Validate voxOffset is greater than sizeOfHdr.
     if (this.voxOffset < this.sizeOfHdr) {
       throw new HeaderError(
