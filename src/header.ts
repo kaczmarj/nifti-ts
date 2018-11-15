@@ -305,14 +305,13 @@ export class Header implements HeaderInterface {
   }
 
   getBestAffine(): Matrix44 {
-    // This is different from nibabel's implementation in that we prefer the quaternion-based approach.
-    if (this.qformCode > 0) {
-      return this.getQform();
-    } else if (this.sformCode > 0) {
+    if (this.sformCode > 0) {
       return this.getSform();
+    } else if (this.qformCode > 0) {
+      return this.getQform();
     } else {
       throw new HeaderError(
-        'Both qformCode and sformCode are 0. Affine cannot be computed.',
+        'Both sformCode and qformCode are 0. Affine cannot be computed.',
       );
     }
   }
@@ -428,19 +427,20 @@ export class Header implements HeaderInterface {
     }
 
     // Validate qformCode
-    const validQformCodes = [0, 1];
-    if (!validQformCodes.includes(this.qformCode)) {
-      console.warn(
-        'Value of qformCode must be 0 or 1 but got ' + this.qformCode + '.',
+    const validXformCodes = [0, 1, 2, 3, 4];
+    if (!validXformCodes.includes(this.qformCode)) {
+      throw new HeaderError(
+        'Value of qformCode must be 0, 1, 2, 3, or 4 but got ' +
+          this.qformCode +
+          '.',
       );
     }
 
     // Validate sformCode
-    const validSformCodes = [0, 2, 3, 4];
-    if (!validSformCodes.includes(this.sformCode)) {
-      console.warn(
-        'Value of sformCode must be 0, 2, 3, or 4 but got ' +
-          this.qformCode +
+    if (!validXformCodes.includes(this.qformCode)) {
+      throw new HeaderError(
+        'Value of sformCode must be 0, 1, 2, 3, or 4 but got ' +
+          this.sformCode +
           '.',
       );
     }
