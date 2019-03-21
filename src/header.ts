@@ -6,15 +6,6 @@ import {inflate, isGzipped} from './gzip';
 import {fillPositive, quaternionToRotationMatrix} from './quaternion';
 import {EightNumbers, FourNumbers, HeaderInterface, Matrix44, XFormCode} from './types';
 
-// QUESTION(kaczmarj): is this implementation appropriate?
-// interface HeaderError extends Error {}
-
-// interface HeaderErrorConstructor {
-//   new (message?: string): Header;
-//   (message?: string): HeaderError;
-//   readonly prototype: HeaderError;
-// }
-
 export class HeaderError extends Error {
   constructor(m: string) {
     super(m);
@@ -23,8 +14,6 @@ export class HeaderError extends Error {
     Object.setPrototypeOf(this, HeaderError.prototype);
   }
 }
-
-// declare const HeaderError: HeaderErrorConstructor;
 
 export class Header implements HeaderInterface {
   constructor(
@@ -88,11 +77,11 @@ export class Header implements HeaderInterface {
     // go through header and set values to appropriate keys
     const sizeOfHdr = data.getInt32(0, littleEndian);
     if (sizeOfHdr !== 348) {
-      throw Error('sizeOfHdr must be 348 but is not');
+      throw Error('sizeOfHdr must be 348 but got  ${sizeOfHdr}');
     }
 
     const dimInfo = data.getInt8(39);
-    const dim = [
+    const dim: EightNumbers = [
       data.getInt16(40, littleEndian),
       data.getInt16(42, littleEndian),
       data.getInt16(44, littleEndian),
@@ -101,7 +90,7 @@ export class Header implements HeaderInterface {
       data.getInt16(50, littleEndian),
       data.getInt16(52, littleEndian),
       data.getInt16(54, littleEndian),
-    ] as EightNumbers;
+    ];
 
     const intentP1 = data.getFloat32(56, littleEndian);
     const intentP2 = data.getFloat32(60, littleEndian);
@@ -111,7 +100,7 @@ export class Header implements HeaderInterface {
     const datatype = data.getInt16(70, littleEndian);
     const bitpix = data.getInt16(72, littleEndian);
     const sliceStart = data.getInt16(74, littleEndian);
-    const pixdim = [
+    const pixdim: EightNumbers = [
       data.getFloat32(76, littleEndian),
       data.getFloat32(80, littleEndian),
       data.getFloat32(84, littleEndian),
@@ -120,7 +109,7 @@ export class Header implements HeaderInterface {
       data.getFloat32(96, littleEndian),
       data.getFloat32(100, littleEndian),
       data.getFloat32(104, littleEndian),
-    ] as EightNumbers;
+    ];
     const voxOffset = data.getFloat32(108, littleEndian);
     const sclSlope = data.getFloat32(112, littleEndian);
     const sclInter = data.getFloat32(116, littleEndian);
@@ -159,24 +148,24 @@ export class Header implements HeaderInterface {
     const qoffsetY = data.getFloat32(272, littleEndian);
     const qoffsetZ = data.getFloat32(276, littleEndian);
 
-    const srowX = [
+    const srowX: FourNumbers = [
       data.getFloat32(280, littleEndian),
       data.getFloat32(284, littleEndian),
       data.getFloat32(288, littleEndian),
       data.getFloat32(292, littleEndian),
-    ] as FourNumbers;
-    const srowY = [
+    ];
+    const srowY: FourNumbers = [
       data.getFloat32(296, littleEndian),
       data.getFloat32(300, littleEndian),
       data.getFloat32(304, littleEndian),
       data.getFloat32(308, littleEndian),
-    ] as FourNumbers;
-    const srowZ = [
+    ];
+    const srowZ: FourNumbers = [
       data.getFloat32(312, littleEndian),
       data.getFloat32(316, littleEndian),
       data.getFloat32(320, littleEndian),
       data.getFloat32(324, littleEndian),
-    ] as FourNumbers;
+    ];
 
     d = '';
     for (j = 328; j < 344; j++) {
@@ -393,72 +382,50 @@ export class Header implements HeaderInterface {
     // Validate magic.
     if (this.magic != 'ni1\0' && this.magic != 'n+1\0') {
       throw new HeaderError(
-          'Magic value must be "ni1\0" or "n+1\0" but got "' + this.magic +
-              '".',
-      );
+          `Magic value must be "ni1\0" or "n+1\0" but got ${this.magic}.`);
     }
-
     // Validate sizeOfHdr.
     if (this.sizeOfHdr !== 348) {
-      throw new HeaderError(
-          'sizeOfHdr must be 348 but got ' + this.sizeOfHdr + '.',
-      );
+      throw new HeaderError(`sizeOfHdr must be 348 but got ${this.sizeOfHdr}.`);
     }
-
     // Validate dim0 is in range [1, 7]..
     if (this.dim[0] < 1 || this.dim[0] > 7) {
       throw new HeaderError(
-          'dim[0] value must in range [1, 7] but got ' + this.dim[0] + '.',
-      );
+          `dim[0] value must in range [1, 7] but got ${this.dim[0]}.`);
     }
-
     // Validate qformCode
     const validXformCodes = [0, 1, 2, 3, 4];
     if (!validXformCodes.includes(this.qformCode)) {
       throw new HeaderError(
-          'Value of qformCode must be 0, 1, 2, 3, or 4 but got ' +
-              this.qformCode + '.',
-      );
+          `Value of qformCode must be 0, 1, 2, 3, or 4 but got ${
+              this.qformCode}.`);
     }
-
     // Validate sformCode
     if (!validXformCodes.includes(this.qformCode)) {
       throw new HeaderError(
-          'Value of sformCode must be 0, 1, 2, 3, or 4 but got ' +
-              this.sformCode + '.',
-      );
+          `Value of sformCode must be 0, 1, 2, 3, or 4 but got ${
+              this.sformCode}.`);
     }
-
     // Validate voxOffset is greater than sizeOfHdr.
     if (this.voxOffset < this.sizeOfHdr) {
       throw new HeaderError(
-          'Value of voxOffset must be greater than or equal to sizeOfHdr but got ' +
-              this.voxOffset + '.',
-      );
+          `Value of voxOffset must be greater than or equal to sizeOfHdr but got ${
+              this.voxOffset}.`);
     }
-
     // Validate length of descip is at most 80.
     if (this.descrip.length > 80) {
-      throw new HeaderError(
-          'Length of descrip can be at most 80 but got ' + this.descrip.length +
-              '.',
-      );
+      throw new HeaderError(`Length of descrip can be at most 80 but got ${
+          this.descrip.length}.`);
     }
-
     // Validate length of auxFile is at most 24.
     if (this.auxFile.length > 24) {
-      throw new HeaderError(
-          'Length of intentName can be at most 24 but got ' +
-              this.auxFile.length + '.',
-      );
+      throw new HeaderError(`Length of intentName can be at most 24 but got ${
+          this.auxFile.length}.`);
     }
-
     // Validate length of intentName is at most 16.
     if (this.intentName.length > 16) {
-      throw new HeaderError(
-          'Length of intentName can be at most 16 but got ' +
-              this.intentName.length + '.',
-      );
+      throw new HeaderError(`Length of intentName can be at most 16 but got ${
+          this.intentName.length}.`);
     }
   }
 
@@ -466,7 +433,7 @@ export class Header implements HeaderInterface {
   // This implementation follows nibabel's implementation.
   setDimInfo(freq?: number, phase?: number, slice?: number): this {
     for (let j of [freq, phase, slice]) {
-      if (j !== null && ![0, 1, 2].includes(j as number)) {
+      if (j !== null && ![0, 1, 2].includes(j)) {
         throw new HeaderError('Inputs must be in [null, 0, 1, 2]');
       }
     }
