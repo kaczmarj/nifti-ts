@@ -2,9 +2,9 @@
 //
 // Orientation: +x=Right, +y=Anterior, +z=Superior
 
-import { isGzipped, inflate } from './gzip';
-import { HeaderInterface, Matrix44, XFormCode } from './types';
-import { fillPositive, quaternionToRotationMatrix } from './quaternion';
+import {inflate, isGzipped} from './gzip';
+import {fillPositive, quaternionToRotationMatrix} from './quaternion';
+import {EightNumbers, FourNumbers, HeaderInterface, Matrix44, XFormCode} from './types';
 
 // QUESTION(kaczmarj): is this implementation appropriate?
 // interface HeaderError extends Error {}
@@ -15,7 +15,7 @@ import { fillPositive, quaternionToRotationMatrix } from './quaternion';
 //   readonly prototype: HeaderError;
 // }
 
-class HeaderError extends Error {
+export class HeaderError extends Error {
   constructor(m: string) {
     super(m);
 
@@ -28,63 +28,46 @@ class HeaderError extends Error {
 
 export class Header implements HeaderInterface {
   constructor(
-    public sizeOfHdr: number,
-    public dimInfo: number, // int8, MRI slice ordering, 39
-    public dim: [
-      number,
-      number,
-      number,
-      number,
-      number,
-      number,
-      number,
-      number
-    ], // int16[8], data array dimensions, 40
-    public intentP1: number, // float32, 1st intent parameter, 56
-    public intentP2: number, // float32, 2nd intent parameter, 60
-    public intentP3: number, // float32, 3rd intent parameter, 64
-    public intentCode: number, // int16,  NIFTIINTENT code, 68
-    public datatype: number, // int16, defines data type, 70
-    public bitpix: number, // int16, number bits/voxel, 72
-    public sliceStart: number, // int16, first slice index, 74
-    public pixdim: [
-      number,
-      number,
-      number,
-      number,
-      number,
-      number,
-      number,
-      number
-    ], // float32[8], grid spacings, 76
-    public voxOffset: number, // float32, offset into .nii file, 108
-    public sclSlope: number, // float32, data scaling: slope, 112
-    public sclInter: number, // float32, data scaling: offset, 116
-    public sliceEnd: number, // int16, last slice index, 120
-    public sliceCode: number, // int8, slice timing order, 122
-    public xyztUnits: number, // int8, units of pixdim[1..4], 123
-    public calMax: number, // float32, max display intensity, 124
-    public calMin: number, // float32, min display intensity, 128
-    public sliceDuration: number, // float32, time for one slice, 132
-    public toffset: number, // float32, time axis shift, 136
-    public glmax: number, // int32, unused, 140
-    public glmin: number, // int32, unused, 144
-    public descrip: string, // int8[80], any text you like, 148
-    public auxFile: string, // int8[24], auxiliary filename, 228
-    public qformCode: XFormCode, // int16, NIFTIXFORM code, 252
-    public sformCode: XFormCode, // int16, NIFTIXFORM code, 254
-    public quaternB: number, // float32, quaternion b param, 256
-    public quaternC: number, // float32, quaternion c param, 260
-    public quaternD: number, // float32, quaternion d param, 264
-    public qoffsetX: number, // float32, quaternion x shift, 268
-    public qoffsetY: number, // float32, quaternion y shift, 272
-    public qoffsetZ: number, // float32, quaternion z shift, 276
-    public srowX: [number, number, number, number], // float32[4], 1st row affine transform, 280
-    public srowY: [number, number, number, number], // float32[4], 2nd row affine transform, 296
-    public srowZ: [number, number, number, number], // float32[4], 3rd row affine transform, 312
-    public intentName: string, // int8[16], name or meaning of data, 328
-    public magic: string, // int8[4], MUST be "ni1\0" or "n+1\0", 344
-    public littleEndian: boolean,
+      public sizeOfHdr: number = 348,
+      public dimInfo: number,         // int8, MRI slice ordering, 39
+      public dim: EightNumbers,       // int16[8], data array dimensions, 40
+      public intentP1: number = 0,    // float32, 1st intent parameter, 56
+      public intentP2: number = 0,    // float32, 2nd intent parameter, 60
+      public intentP3: number = 0,    // float32, 3rd intent parameter, 64
+      public intentCode: number = 0,  // int16,  NIFTIINTENT code, 68
+      public datatype: number,        // int16, defines data type, 70
+      public bitpix: number,          // int16, number bits/voxel, 72
+      public sliceStart: number,      // int16, first slice index, 74
+      public pixdim: EightNumbers,    // float32[8], grid spacings, 76
+      public voxOffset: number,       // float32, offset into .nii file, 108
+      public sclSlope: number = 1,    // float32, data scaling: slope, 112
+      public sclInter: number = 0,    // float32, data scaling: offset, 116
+      public sliceEnd: number,        // int16, last slice index, 120
+      public sliceCode: number,       // int8, slice timing order, 122
+      public xyztUnits: number = 0,   // int8, units of pixdim[1..4], 123
+      public calMax: number,          // float32, max display intensity, 124
+      public calMin: number,          // float32, min display intensity, 128
+      public sliceDuration: number,   // float32, time for one slice, 132
+      public toffset: number,         // float32, time axis shift, 136
+      public glmax: number = 0,       // int32, unused, 140
+      public glmin: number = 0,       // int32, unused, 144
+      public descrip: string = '',    // int8[80], any text you like, 148
+      public auxFile: string = '',    // int8[24], auxiliary filename, 228
+      public qformCode: XFormCode,    // int16, NIFTIXFORM code, 252
+      public sformCode: XFormCode,    // int16, NIFTIXFORM code, 254
+      public quaternB: number,        // float32, quaternion b param, 256
+      public quaternC: number,        // float32, quaternion c param, 260
+      public quaternD: number,        // float32, quaternion d param, 264
+      public qoffsetX: number,        // float32, quaternion x shift, 268
+      public qoffsetY: number,        // float32, quaternion y shift, 272
+      public qoffsetZ: number,        // float32, quaternion z shift, 276
+      public srowX: FourNumbers,  // float32[4], 1st row affine transform, 280
+      public srowY: FourNumbers,  // float32[4], 2nd row affine transform, 296
+      public srowZ: FourNumbers,  // float32[4], 3rd row affine transform, 312
+      public intentName: string = '',  // int8[16], name or meaning of data, 328
+      public magic:
+          string = 'n+1\0',  // int8[4], MUST be "ni1\0" or "n+1\0", 344
+      public littleEndian: boolean,
   ) {
     this.validate();
   }
@@ -118,7 +101,7 @@ export class Header implements HeaderInterface {
       data.getInt16(50, littleEndian),
       data.getInt16(52, littleEndian),
       data.getInt16(54, littleEndian),
-    ] as [number, number, number, number, number, number, number, number];
+    ] as EightNumbers;
 
     const intentP1 = data.getFloat32(56, littleEndian);
     const intentP2 = data.getFloat32(60, littleEndian);
@@ -137,7 +120,7 @@ export class Header implements HeaderInterface {
       data.getFloat32(96, littleEndian),
       data.getFloat32(100, littleEndian),
       data.getFloat32(104, littleEndian),
-    ] as [number, number, number, number, number, number, number, number];
+    ] as EightNumbers;
     const voxOffset = data.getFloat32(108, littleEndian);
     const sclSlope = data.getFloat32(112, littleEndian);
     const sclInter = data.getFloat32(116, littleEndian);
@@ -181,19 +164,19 @@ export class Header implements HeaderInterface {
       data.getFloat32(284, littleEndian),
       data.getFloat32(288, littleEndian),
       data.getFloat32(292, littleEndian),
-    ] as [number, number, number, number];
+    ] as FourNumbers;
     const srowY = [
       data.getFloat32(296, littleEndian),
       data.getFloat32(300, littleEndian),
       data.getFloat32(304, littleEndian),
       data.getFloat32(308, littleEndian),
-    ] as [number, number, number, number];
+    ] as FourNumbers;
     const srowZ = [
       data.getFloat32(312, littleEndian),
       data.getFloat32(316, littleEndian),
       data.getFloat32(320, littleEndian),
       data.getFloat32(324, littleEndian),
-    ] as [number, number, number, number];
+    ] as FourNumbers;
 
     d = '';
     for (j = 328; j < 344; j++) {
@@ -208,45 +191,45 @@ export class Header implements HeaderInterface {
     const magic = d;
 
     return new this(
-      sizeOfHdr,
-      dimInfo,
-      dim,
-      intentP1,
-      intentP2,
-      intentP3,
-      intentCode,
-      datatype,
-      bitpix,
-      sliceStart,
-      pixdim,
-      voxOffset,
-      sclSlope,
-      sclInter,
-      sliceEnd,
-      sliceCode,
-      xyztUnits,
-      calMax,
-      calMin,
-      sliceDuration,
-      toffset,
-      glmax,
-      glmin,
-      descrip,
-      auxFile,
-      qformCode,
-      sformCode,
-      quaternB,
-      quaternC,
-      quaternD,
-      qoffsetX,
-      qoffsetY,
-      qoffsetZ,
-      srowX,
-      srowY,
-      srowZ,
-      intentName,
-      magic,
-      littleEndian,
+        sizeOfHdr,
+        dimInfo,
+        dim,
+        intentP1,
+        intentP2,
+        intentP3,
+        intentCode,
+        datatype,
+        bitpix,
+        sliceStart,
+        pixdim,
+        voxOffset,
+        sclSlope,
+        sclInter,
+        sliceEnd,
+        sliceCode,
+        xyztUnits,
+        calMax,
+        calMin,
+        sliceDuration,
+        toffset,
+        glmax,
+        glmin,
+        descrip,
+        auxFile,
+        qformCode,
+        sformCode,
+        quaternB,
+        quaternC,
+        quaternD,
+        qoffsetX,
+        qoffsetY,
+        qoffsetZ,
+        srowX,
+        srowY,
+        srowZ,
+        intentName,
+        magic,
+        littleEndian,
     );
   }
 
@@ -311,12 +294,13 @@ export class Header implements HeaderInterface {
       return this.getQform();
     } else {
       throw new HeaderError(
-        'Both sformCode and qformCode are 0. Affine cannot be computed.',
+          'Both sformCode and qformCode are 0. Affine cannot be computed.',
       );
     }
   }
 
-  // Return ArrayBuffer representation of the header object. This can be used for writing a file.
+  // Return ArrayBuffer representation of the header object. This can be used
+  // for writing a file.
   toBuffer(): ArrayBuffer {
     const buffer = new ArrayBuffer(352);
     const view = new DataView(buffer);
@@ -361,7 +345,8 @@ export class Header implements HeaderInterface {
     view.setInt32(140, this.glmax, this.littleEndian);
     view.setInt32(144, this.glmin, this.littleEndian);
 
-    // The values of the buffer are initialized to 0, so we only have to set the non-zero values.
+    // The values of the buffer are initialized to 0, so we only have to set the
+    // non-zero values.
     for (let j = 0; j < this.descrip.length; j++) {
       view.setInt8(148 + j, this.descrip.charCodeAt(j));
     }
@@ -408,21 +393,22 @@ export class Header implements HeaderInterface {
     // Validate magic.
     if (this.magic != 'ni1\0' && this.magic != 'n+1\0') {
       throw new HeaderError(
-        'Magic value must be "ni1\0" or "n+1\0" but got "' + this.magic + '".',
+          'Magic value must be "ni1\0" or "n+1\0" but got "' + this.magic +
+              '".',
       );
     }
 
     // Validate sizeOfHdr.
     if (this.sizeOfHdr !== 348) {
       throw new HeaderError(
-        'sizeOfHdr must be 348 but got ' + this.sizeOfHdr + '.',
+          'sizeOfHdr must be 348 but got ' + this.sizeOfHdr + '.',
       );
     }
 
     // Validate dim0 is in range [1, 7]..
     if (this.dim[0] < 1 || this.dim[0] > 7) {
       throw new HeaderError(
-        'dim[0] value must in range [1, 7] but got ' + this.dim[0] + '.',
+          'dim[0] value must in range [1, 7] but got ' + this.dim[0] + '.',
       );
     }
 
@@ -430,55 +416,71 @@ export class Header implements HeaderInterface {
     const validXformCodes = [0, 1, 2, 3, 4];
     if (!validXformCodes.includes(this.qformCode)) {
       throw new HeaderError(
-        'Value of qformCode must be 0, 1, 2, 3, or 4 but got ' +
-          this.qformCode +
-          '.',
+          'Value of qformCode must be 0, 1, 2, 3, or 4 but got ' +
+              this.qformCode + '.',
       );
     }
 
     // Validate sformCode
     if (!validXformCodes.includes(this.qformCode)) {
       throw new HeaderError(
-        'Value of sformCode must be 0, 1, 2, 3, or 4 but got ' +
-          this.sformCode +
-          '.',
+          'Value of sformCode must be 0, 1, 2, 3, or 4 but got ' +
+              this.sformCode + '.',
       );
     }
 
     // Validate voxOffset is greater than sizeOfHdr.
     if (this.voxOffset < this.sizeOfHdr) {
       throw new HeaderError(
-        'Value of voxOffset must be greater than or equal to sizeOfHdr but got ' +
-          this.voxOffset +
-          '.',
+          'Value of voxOffset must be greater than or equal to sizeOfHdr but got ' +
+              this.voxOffset + '.',
       );
     }
 
     // Validate length of descip is at most 80.
     if (this.descrip.length > 80) {
       throw new HeaderError(
-        'Length of descrip can be at most 80 but got ' +
-          this.descrip.length +
-          '.',
+          'Length of descrip can be at most 80 but got ' + this.descrip.length +
+              '.',
       );
     }
 
     // Validate length of auxFile is at most 24.
     if (this.auxFile.length > 24) {
       throw new HeaderError(
-        'Length of intentName can be at most 24 but got ' +
-          this.auxFile.length +
-          '.',
+          'Length of intentName can be at most 24 but got ' +
+              this.auxFile.length + '.',
       );
     }
 
     // Validate length of intentName is at most 16.
     if (this.intentName.length > 16) {
       throw new HeaderError(
-        'Length of intentName can be at most 16 but got ' +
-          this.intentName.length +
-          '.',
+          'Length of intentName can be at most 16 but got ' +
+              this.intentName.length + '.',
       );
     }
+  }
+
+  // Set dimInfo based on frequency, phase, and slice ordering.
+  // This implementation follows nibabel's implementation.
+  setDimInfo(freq?: number, phase?: number, slice?: number): this {
+    for (let j of [freq, phase, slice]) {
+      if (j !== null && ![0, 1, 2].includes(j as number)) {
+        throw new HeaderError('Inputs must be in [null, 0, 1, 2]');
+      }
+    }
+    let info = 0;
+    if (freq) {
+      info = info | ((freq + 1) & 3);
+    }
+    if (phase) {
+      info = info | (((phase + 1) & 3) << 2);
+    }
+    if (slice) {
+      info = info | (((slice + 1) & 3) << 4);
+    }
+    this.dimInfo = info;
+    return this;
   }
 }

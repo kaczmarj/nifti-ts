@@ -1,6 +1,7 @@
 // Routines for affines.
 //
-// This file draws from the official nifti1.h header file, nibabel, and Wikipedia.
+// This file draws from the official nifti1.h header file, nibabel, and
+// Wikipedia.
 //
 // Three methods (taken from nifti1.h)
 //    1. qform_code == 0 (UNSUPPORTED)
@@ -9,17 +10,19 @@
 
 /**
  * Quaternion-based.
- * This represents "scanner-anatomical" coordinates (i.e., what the scanner reported).
+ * This represents "scanner-anatomical" coordinates (i.e., what the scanner
+ * reported).
  *
- * The coordinates (x, y, z) encode the center of the voxel and can be computed with
- * the following equation:
+ * The coordinates (x, y, z) encode the center of the voxel and can be computed
+ * with the following equation:
  *
  *   [x]   [ R11 R12 R13 ] [        pixdim[1] * i ]   [ qoffset_x ]
  *   [y] = [ R21 R22 R23 ] [        pixdim[2] * j ] + [ qoffset_y ]
  *   [z]   [ R31 R32 R33 ] [ qfac * pixdim[3] * k ]   [ qoffset_z ]
  *
- * Create the rotation matrix R with the quaternion using the following equation,
- * taken from https://en.wikipedia.org/wiki/Rotation_matrix#Quaternion.
+ * Create the rotation matrix R with the quaternion using the following
+ * equation, taken from
+ * https://en.wikipedia.org/wiki/Rotation_matrix#Quaternion.
  *
  *   n = w*w + x*x + y*y + z*z
  *   s = 0 if n = 0
@@ -33,15 +36,15 @@
  *       [   xz - wy         yz + wx     1 - (xx + yy) ]
  */
 
-import { Matrix33 } from './types';
+import {Matrix33} from './types';
 
 const FLOAT_EPSILON = Number.EPSILON;
 
 // Translated from nibabel.quaternions.fillpositive
 export function fillPositive(
-  xyz: [number, number, number],
-  w2_thresh?: number,
-): [number, number, number, number] {
+    xyz: [number, number, number],
+    w2_thresh?: number,
+    ): [number, number, number, number] {
   if (w2_thresh === null) {
     w2_thresh = -FLOAT_EPSILON * 3.0;
   }
@@ -63,8 +66,8 @@ export function fillPositive(
 }
 
 export function quaternionToRotationMatrix(
-  quaternion: [number, number, number, number],
-): Matrix33 {
+    quaternion: [number, number, number, number],
+    ): Matrix33 {
   const [w, x, y, z] = quaternion;
   const Nq = w * w + x * x + y * y + z * z;
   if (Nq < FLOAT_EPSILON) {
@@ -73,17 +76,17 @@ export function quaternionToRotationMatrix(
 
   const s = 2.0 / Nq;
 
-  const wx = s * w * x,
-    wy = s * w * y,
-    wz = s * w * z;
+  const wx = s * w * x;
+  const wy = s * w * y;
+  const wz = s * w * z;
 
-  const xx = s * x * x,
-    xy = s * x * y,
-    xz = s * x * z;
+  const xx = s * x * x;
+  const xy = s * x * y;
+  const xz = s * x * z;
 
-  const yy = s * y * y,
-    yz = s * y * z,
-    zz = s * z * z;
+  const yy = s * y * y;
+  const yz = s * y * z;
+  const zz = s * z * z;
 
   return [
     [1 - (yy + zz), xy - wz, xz + wy],
