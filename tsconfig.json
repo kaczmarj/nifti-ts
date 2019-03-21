@@ -1,15 +1,28 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "esnext",
-    "strict": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
     "noImplicitAny": true,
-    "downlevelIteration": true,
-    "removeComments": false,
-    "preserveConstEnums": false,
     "sourceMap": true,
-    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
+    "removeComments": false,
+    "preserveConstEnums": true,
+    "declaration": true,
+    "target": "es5",
+    "lib": [
+      "es2016",
+      "dom"
+    ],
+    "outDir": "./dist",
+    "noUnusedLocals": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedParameters": false,
+    "pretty": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowUnreachableCode": false
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+  "include": [
+    "src/"
+  ]
 }
