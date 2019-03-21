@@ -111,20 +111,16 @@ export interface HeaderInterface {
   // regular: number;  // int8, unused, 38
   dimInfo: number;  // int8, MRI slice ordering, 39
 
-  dim: [
-    number, number, number, number, number, number, number, number
-  ];                 // int16[8], data array dimensions, 40
-  intentP1: number;  // float32, 1st intent parameter, 56
-  intentP2: number;  // float32, 2nd intent parameter, 60
-  intentP3: number;  // float32, 3rd intent parameter, 64
+  dim: EightNumbers;  // int16[8], data array dimensions, 40
+  intentP1: number;   // float32, 1st intent parameter, 56
+  intentP2: number;   // float32, 2nd intent parameter, 60
+  intentP3: number;   // float32, 3rd intent parameter, 64
 
-  intentCode: number;  // int16,  NIFTIINTENT code, 68
-  datatype: number;    // int16, defines data type, 70
-  bitpix: number;      // int16, number bits/voxel, 72
-  sliceStart: number;  // int16, first slice index, 74
-  pixdim: [
-    number, number, number, number, number, number, number, number
-  ];                      // float32[8], grid spacings, 76
+  intentCode: number;     // int16,  NIFTIINTENT code, 68
+  datatype: number;       // int16, defines data type, 70
+  bitpix: number;         // int16, number bits/voxel, 72
+  sliceStart: number;     // int16, first slice index, 74
+  pixdim: EightNumbers;   // float32[8], grid spacings, 76
   voxOffset: number;      // float32, offset into .nii file, 108
   sclSlope: number;       // float32, data scaling: slope, 112
   sclInter: number;       // float32, data scaling: offset, 116
@@ -151,15 +147,9 @@ export interface HeaderInterface {
   qoffsetY: number;  // float32, quaternion y shift, 272
   qoffsetZ: number;  // float32, quaternion z shift, 276
 
-  srowX: [
-    number, number, number, number
-  ];  // float32[4], 1st row affine transform, 280
-  srowY: [
-    number, number, number, number
-  ];  // float32[4], 2nd row affine transform, 296
-  srowZ: [
-    number, number, number, number
-  ];  // float32[4], 3rd row affine transform, 312
+  srowX: FourNumbers;  // float32[4], 1st row affine transform, 280
+  srowY: FourNumbers;  // float32[4], 2nd row affine transform, 296
+  srowZ: FourNumbers;  // float32[4], 3rd row affine transform, 312
 
   intentName: string;  // int8[16], name or meaning of data, 328
   magic: string;       // int8[4], MUST be "ni1\0" or "n+1\0", 344

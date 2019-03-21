@@ -36,7 +36,7 @@
  *       [   xz - wy         yz + wx     1 - (xx + yy) ]
  */
 
-import {Matrix33} from './types';
+import {FourNumbers, Matrix33} from './types';
 
 const FLOAT_EPSILON = Number.EPSILON;
 
@@ -66,7 +66,7 @@ export function fillPositive(
 }
 
 export function quaternionToRotationMatrix(
-    quaternion: [number, number, number, number],
+    quaternion: FourNumbers,
     ): Matrix33 {
   const [w, x, y, z] = quaternion;
   const Nq = w * w + x * x + y * y + z * z;

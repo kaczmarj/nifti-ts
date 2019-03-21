@@ -3,7 +3,6 @@ export * from './header';
 export * from './image';
 
 import {inflate, isGzipped} from './gzip';
-// import {Header} from './header';
 import {Image} from './image';
 
 export function fromBuffer(buffer: ArrayBuffer): Image {
