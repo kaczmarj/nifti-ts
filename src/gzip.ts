@@ -13,13 +13,13 @@ export function isGzipped(buffer: ArrayBuffer): boolean {
 }
 
 // Inflate a gzip-compressed buffer.
-export function inflate(buffer: ArrayBuffer): ArrayBuffer {
+export function ungzip(buffer: ArrayBuffer): ArrayBuffer {
   const compressed = new Uint8Array(buffer);
-  return pako.inflate(compressed).buffer;
+  return pako.ungzip(compressed).buffer;
 }
 
 // Deflate a buffer.
-export function deflate(buffer: ArrayBuffer): ArrayBuffer {
+export function gzip(buffer: ArrayBuffer): ArrayBuffer {
   const data = new Uint8Array(buffer);
-  return pako.deflate(data).buffer;
+  return pako.gzip(data).buffer;
 }

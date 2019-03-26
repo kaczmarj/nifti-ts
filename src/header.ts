@@ -2,7 +2,7 @@
 //
 // Orientation: +x=Right, +y=Anterior, +z=Superior
 
-import {inflate, isGzipped} from './gzip';
+import {isGzipped, ungzip} from './gzip';
 import {fillPositive, quaternionToRotationMatrix} from './quaternion';
 import {EightNumbers, FourNumbers, HeaderInterface, Matrix44, XFormCode} from './types';
 
@@ -63,7 +63,7 @@ export class Header implements HeaderInterface {
 
   static fromBuffer(buffer: ArrayBuffer) {
     if (isGzipped(buffer)) {
-      buffer = inflate(buffer);
+      buffer = ungzip(buffer);
     }
     const data = new DataView(buffer);
 
@@ -77,7 +77,7 @@ export class Header implements HeaderInterface {
     // go through header and set values to appropriate keys
     const sizeOfHdr = data.getInt32(0, littleEndian);
     if (sizeOfHdr !== 348) {
-      throw Error('sizeOfHdr must be 348 but got  ${sizeOfHdr}');
+      throw Error(`sizeOfHdr must be 348 but got ${sizeOfHdr}`);
     }
 
     const dimInfo = data.getInt8(39);
@@ -233,7 +233,7 @@ export class Header implements HeaderInterface {
     const vox = this.pixdim.slice(1, 4);
     const qfac = this.pixdim[0];
     if (qfac !== -1 && qfac !== 1) {
-      throw Error('qfac must be -1 or 1.');
+      throw Error(`qfac must be -1 or 1 but got ${qfac}`);
     }
 
     vox[2] *= qfac;
@@ -433,7 +433,7 @@ export class Header implements HeaderInterface {
   // This implementation follows nibabel's implementation.
   setDimInfo(freq?: number, phase?: number, slice?: number): this {
     for (let j of [freq, phase, slice]) {
-      if (j !== null && ![0, 1, 2].includes(j)) {
+      if (j !== null && ![0, 1, 2].includes(j as number)) {
         throw new HeaderError('Inputs must be in [null, 0, 1, 2]');
       }
     }
