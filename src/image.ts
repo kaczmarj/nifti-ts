@@ -1,5 +1,6 @@
 // Image routines.
 
+import {gzip} from './gzip';
 import {Header, HeaderError} from './header';
 import {EightNumbers, FourNumbers, ImageInterface, Matrix44, XFormCode,} from './types';
 import {TypedArray, valueToTypedArray} from './types';
@@ -12,7 +13,7 @@ function readData(header: Header, buffer: ArrayBuffer): TypedArray {
 }
 
 function getNiftiDataType(array: TypedArray): number {
-  if (array instanceof Uint16Array) {
+  if (array instanceof Uint8Array) {
     return 2;
   } else if (array instanceof Int16Array) {
     return 4;
@@ -53,7 +54,14 @@ export class Image implements ImageInterface {
           'Number of dimensions must be <= 7 but got ' + nDim + '.',
       );
     }
-    shape.length = 7;  // this initializes new values to 0.
+
+    // Resize shape array to have 7 values.
+    const shapeLength = 7;
+    while (shapeLength > shape.length) {
+      shape.push(1);
+    }
+    shape.length = shapeLength
+
     const dim = [nDim, ...shape] as EightNumbers;
     // TODO(kaczmarj): fix this. pixdim[0] should be qfac
     const pixdim = [1, 1, 1, 1, 1, 1, 1, 1] as EightNumbers;
@@ -122,5 +130,10 @@ export class Image implements ImageInterface {
         this.header.voxOffset,
     );
     return tmp.buffer as ArrayBuffer;
+  }
+
+  public toGzippedBuffer(): ArrayBuffer {
+    const buffer = this.toBuffer()
+    return gzip(buffer);
   }
 }
